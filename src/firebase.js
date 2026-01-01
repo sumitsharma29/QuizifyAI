@@ -12,8 +12,26 @@ const firebaseConfig = {
   storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
   appId: import.meta.env.VITE_FIREBASE_APP_ID
-  //   measurementId: "G-GG1CXJFTVJ"
 };
+
+// Validate Config
+const requiredKeys = [
+  "apiKey",
+  "authDomain",
+  "projectId",
+  "storageBucket",
+  "messagingSenderId",
+  "appId",
+];
+
+const missingKeys = requiredKeys.filter((key) => !firebaseConfig[key]);
+if (missingKeys.length > 0) {
+  console.error(
+    `🔥 Firebase Configuration Error: Missing required keys: ${missingKeys.join(
+      ", "
+    )}. Check your .env file.`
+  );
+}
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);

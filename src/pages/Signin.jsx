@@ -22,6 +22,7 @@ export default function Signin({ setView }) {
       await signInWithPopup(auth, googleProvider);
       setView("home");
     } catch (err) {
+      console.error("Google Sign-In Error:", err);
       if (
         err.code === "auth/cancelled-popup-request" ||
         err.code === "auth/popup-closed-by-user"
