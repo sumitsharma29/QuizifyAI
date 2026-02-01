@@ -18,10 +18,10 @@ const Footer = memo(({ setView }) => (
         {/* Column 1 - Branding (Spans 2 columns) */}
         <div className="space-y-4 md:col-span-2">
           <div className="flex items-center gap-2">
-            <div className="p-2 rounded-xl bg-indigo-500/20 backdrop-blur-md">
+            <div className="p-2 rounded-xl bg-indigo-500/20 backdrop-blur-md ring-1 ring-white/10">
               <Brain className="h-6 w-6 text-indigo-400" />
             </div>
-            <span className="text-xl font-bold text-white">QuizifyAI</span>
+            <span className="text-xl font-extrabold text-white tracking-tight font-[Outfit]">QuizifyAI</span>
           </div>
 
           <p className="text-sm leading-relaxed text-slate-400">

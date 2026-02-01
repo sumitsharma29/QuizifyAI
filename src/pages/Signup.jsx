@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { createUserWithEmailAndPassword, signInWithPopup } from "firebase/auth";
+import React, { useState, useEffect } from "react";
+import { createUserWithEmailAndPassword, signInWithPopup, signInWithRedirect, getRedirectResult, onAuthStateChanged } from "firebase/auth";
 import { auth, googleProvider } from "../firebase";
 
 export default function Signup({ setView }) {
@@ -7,6 +7,26 @@ export default function Signup({ setView }) {
   const [password, setPassword] = useState("");
   const [cpassword, setCPassword] = useState("");
   const [error, setError] = useState("");
+
+  // Handle Redirect Result
+  useEffect(() => {
+    getRedirectResult(auth)
+      .then((result) => {
+        if (result) setView("home");
+      })
+      .catch((err) => {
+        console.error("Redirect Auth Error:", err);
+        setError(err.message);
+      });
+  }, [setView]);
+
+  // Watch for successful auth
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, (user) => {
+      if (user) setView("home");
+    });
+    return () => unsub();
+  }, [setView]);
 
   const handleSignup = async (e) => {
     e.preventDefault();
@@ -18,7 +38,7 @@ export default function Signup({ setView }) {
 
     try {
       await createUserWithEmailAndPassword(auth, email, password);
-      setView("home");
+      // Auth listener will handle redirection
     } catch (err) {
       setError(err.message);
     }
@@ -27,17 +47,22 @@ export default function Signup({ setView }) {
   const signUpWithGoogle = async () => {
     try {
       await signInWithPopup(auth, googleProvider);
-      setView("home");
+      // Auth listener will handle redirection
     } catch (err) {
-      console.error("Google Sign-In Error:", err);
-      if (
-        err.code === "auth/cancelled-popup-request" ||
-        err.code === "auth/popup-closed-by-user"
-      ) {
-        console.warn("Google sign-up cancelled by user.");
-        return;
+      console.error("Google Sign-In Popup Error:", err);
+      // Fallback to Redirect if Popup blocks or fails internally
+      if (err.code === 'auth/internal-error' || err.code === 'auth/popup-closed-by-user') {
+        console.log("Attempting redirect signup as fallback...");
+        try {
+          await signInWithRedirect(auth, googleProvider);
+          return;
+        } catch (redirectErr) {
+          setError("Redirect failed: " + redirectErr.message);
+        }
       }
-      setError(err.message);
+      if (err.code !== "auth/popup-closed-by-user" && err.code !== "auth/cancelled-popup-request") {
+        setError(err.message);
+      }
     }
   };
 

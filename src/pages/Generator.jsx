@@ -17,6 +17,8 @@ import Button from "../components/Button";
 export default function Generator({
   genMode,
   setGenMode,
+  genFormat,
+  setGenFormat,
   genInput,
   setGenInput,
   fileName,
@@ -71,7 +73,7 @@ export default function Generator({
       {/* Main layout: left = input, right = settings */}
       <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] gap-6 lg:gap-8">
         {/* LEFT SIDE – Input modes */}
-        <div className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 shadow-xl shadow-slate-900/5 dark:shadow-slate-950/40 backdrop-blur-sm p-4 sm:p-6 lg:p-8 transition-colors">
+        <div className="rounded-[2rem] glass p-4 sm:p-6 lg:p-8 transition-colors">
           {/* Mode toggle */}
           <div className="flex flex-wrap gap-2 mb-6">
             {modes.map((mode) => {
@@ -86,21 +88,19 @@ export default function Generator({
                     setFileName("");
                   }}
                   className={`flex items-center gap-2 rounded-2xl px-4 py-2 text-xs sm:text-sm font-semibold transition-all border
-                    ${
-                      active
-                        ? "bg-gradient-to-r from-indigo-600 to-violet-600 text-white border-indigo-500 shadow-lg shadow-indigo-500/40 scale-[1.02]"
-                        : "bg-slate-50/80 dark:bg-slate-900/60 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-indigo-300 dark:hover:border-indigo-500 hover:text-indigo-700 dark:hover:text-indigo-300"
+                    ${active
+                      ? "bg-gradient-to-r from-indigo-600 to-violet-600 text-white border-indigo-500 shadow-lg shadow-indigo-500/40 scale-[1.02]"
+                      : "bg-slate-50/80 dark:bg-slate-900/60 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-indigo-300 dark:hover:border-indigo-500 hover:text-indigo-700 dark:hover:text-indigo-300"
                     }
                   `}
                 >
                   <Icon className="h-4 w-4" />
                   <span>{mode.label}</span>
                   <span
-                    className={`hidden sm:inline-flex rounded-full px-2 py-0.5 text-[0.65rem] font-bold tracking-wide ${
-                      active
-                        ? "bg-white/15 text-indigo-100"
-                        : "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400"
-                    }`}
+                    className={`hidden sm:inline-flex rounded-full px-2 py-0.5 text-[0.65rem] font-bold tracking-wide ${active
+                      ? "bg-white/15 text-indigo-100"
+                      : "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400"
+                      }`}
                   >
                     {mode.badge}
                   </span>
@@ -237,13 +237,45 @@ export default function Generator({
         {/* RIGHT SIDE – Settings & CTA */}
         <div className="space-y-6">
           {/* Settings card */}
-          <div className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-slate-50/90 dark:bg-slate-900/80 shadow-lg shadow-slate-900/5 dark:shadow-slate-950/40 backdrop-blur-sm p-4 sm:p-6">
+          <div className="rounded-[2rem] glass p-4 sm:p-6 text-slate-900 dark:text-white">
             <h3 className="text-sm font-semibold text-slate-900 dark:text-white flex items-center gap-2 mb-4">
               <Sliders className="h-4 w-4 text-indigo-500 dark:text-indigo-400" />
               Quiz Settings
             </h3>
 
             <div className="space-y-6">
+              {/* Format Toggle */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300 flex items-center gap-2">
+                    <Sliders className="h-4 w-4 text-indigo-500 dark:text-indigo-400" />
+                    Format
+                  </span>
+                </div>
+                <div className="flex rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-1">
+                  <button
+                    onClick={() => setGenFormat("quiz")}
+                    className={`flex-1 flex items-center justify-center gap-2 rounded-xl py-2 text-xs sm:text-sm font-semibold transition-all ${genFormat === "quiz"
+                      ? "bg-indigo-600 text-white shadow-sm shadow-indigo-500/40"
+                      : "text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+                      }`}
+                  >
+                    <CheckCircle2 className="h-3.5 w-3.5" />
+                    Quiz
+                  </button>
+                  <button
+                    onClick={() => setGenFormat("flashcard")}
+                    className={`flex-1 flex items-center justify-center gap-2 rounded-xl py-2 text-xs sm:text-sm font-semibold transition-all ${genFormat === "flashcard"
+                      ? "bg-fuchsia-600 text-white shadow-sm shadow-fuchsia-500/40"
+                      : "text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+                      }`}
+                  >
+                    <Zap className="h-3.5 w-3.5" />
+                    Flashcards
+                  </button>
+                </div>
+              </div>
+
               {/* Question count */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between gap-3">
@@ -284,11 +316,10 @@ export default function Generator({
                     <button
                       key={level}
                       onClick={() => setDifficulty(level)}
-                      className={`flex-1 rounded-xl py-1.5 sm:py-2 text-xs sm:text-sm font-semibold transition-all ${
-                        difficulty === level
-                          ? "bg-indigo-600 text-white shadow-sm shadow-indigo-500/40"
-                          : "text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
-                      }`}
+                      className={`flex-1 rounded-xl py-1.5 sm:py-2 text-xs sm:text-sm font-semibold transition-all ${difficulty === level
+                        ? "bg-indigo-600 text-white shadow-sm shadow-indigo-500/40"
+                        : "text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+                        }`}
                     >
                       {level}
                     </button>
@@ -311,8 +342,8 @@ export default function Generator({
                   {genMode === "text"
                     ? "From text"
                     : genMode === "file"
-                    ? "From uploaded file"
-                    : "From topic"}
+                      ? "From uploaded file"
+                      : "From topic"}
                 </span>
                 {genMode === "file" && fileName
                   ? ` · Loaded: ${fileName}`

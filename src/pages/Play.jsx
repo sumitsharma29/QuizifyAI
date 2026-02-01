@@ -1,6 +1,8 @@
 import React from 'react';
-import { XCircle, CheckCircle2, AlertCircle, ArrowRight, Sparkles } from 'lucide-react';
+import { XCircle, CheckCircle2, AlertCircle, ArrowRight, Sparkles, Loader2 } from 'lucide-react';
 import Button from '../components/Button';
+import { playSound } from '../utils/audio';
+import { explainAnswer } from '../utils/generateWithGemini';
 
 export default function Play({
   activeQuiz,
@@ -10,11 +12,29 @@ export default function Play({
   handleAnswer,
   nextQuestion,
   setView,
+  soundEnabled
 }) {
   if (!activeQuiz) return null;
 
+  const [explanation, setExplanation] = React.useState(null);
+  const [isExplaining, setIsExplaining] = React.useState(false);
+
+  // Clear explanation when moving to next question
+  React.useEffect(() => {
+    setExplanation(null);
+    setIsExplaining(false);
+  }, [currentQuestionIndex]);
+
   const question = activeQuiz.questions[currentQuestionIndex];
   const progress = (currentQuestionIndex / activeQuiz.questions.length) * 100;
+
+  const handleExplain = async () => {
+    setIsExplaining(true);
+    const userAnswer = answers[question.id];
+    const text = await explainAnswer(question.text, question.correctAnswer, userAnswer);
+    setExplanation(text);
+    setIsExplaining(false);
+  };
 
   return (
     <div className="mx-auto flex h-full max-w-3xl flex-col animate-fadeIn px-4 py-8">
@@ -41,15 +61,15 @@ export default function Play({
         </div>
       </div>
 
-      <div className="relative flex flex-1 flex-col overflow-hidden rounded-3xl border border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-2xl">
+      <div className="relative flex flex-1 flex-col overflow-hidden rounded-[1.5rem] sm:rounded-[2.5rem] glass shadow-2xl">
         <div className="absolute left-0 top-0 h-1.5 w-full bg-slate-100 dark:bg-slate-700">
           <div
             className="h-full bg-indigo-500 transition-all duration-500 ease-out"
             style={{ width: `${progress}%` }}
           />
         </div>
-        <div className="flex flex-1 flex-col justify-center p-8 sm:p-12">
-          <h2 className="mb-10 text-2xl font-extrabold leading-tight text-slate-800 dark:text-white sm:text-3xl">
+        <div className="flex flex-1 flex-col justify-center p-6 sm:p-12">
+          <h2 className="mb-6 text-xl font-extrabold leading-tight text-slate-800 dark:text-white sm:mb-10 sm:text-3xl">
             {question.text}
           </h2>
           <div className="grid gap-4">
@@ -87,7 +107,14 @@ export default function Play({
               return (
                 <button
                   key={idx}
-                  onClick={() => handleAnswer(option)}
+                  onClick={() => {
+                    handleAnswer(option);
+                    if (option === question.correctAnswer) {
+                      playSound('correct', soundEnabled);
+                    } else {
+                      playSound('wrong', soundEnabled);
+                    }
+                  }}
                   disabled={showResult}
                   className={`group flex w-full items-center justify-between rounded-2xl p-5 text-left text-lg font-bold transition-all duration-200 text-slate-700 dark:text-slate-200 ${buttonClass}`}
                 >
@@ -101,18 +128,31 @@ export default function Play({
 
         {showExplanation && (
           <div className="animate-slideUp border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 p-6 sm:px-12">
-            <div className="mx-auto flex max-w-3xl items-center justify-between">
-              <div className="hidden text-slate-600 dark:text-slate-400 sm:block">
-                {answers[question.id] === question.correctAnswer ? (
-                  <div className="flex items-center rounded-lg bg-emerald-100 dark:bg-emerald-900/30 px-3 py-1 text-sm font-bold text-emerald-700 dark:text-emerald-400">
-                    <Sparkles className="mr-2 h-4 w-4" /> Correct!
-                  </div>
-                ) : (
-                  <div className="flex items-center rounded-lg bg-rose-100 dark:bg-rose-900/30 px-3 py-1 text-sm font-bold text-rose-700 dark:text-rose-400">
-                    <AlertCircle className="mr-2 h-4 w-4" /> Incorrect
-                  </div>
+            <div className="mx-auto flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between max-w-3xl">
+              <div className="flex items-center justify-between sm:justify-start gap-4">
+                <div className="text-slate-600 dark:text-slate-400">
+                  {answers[question.id] === question.correctAnswer ? (
+                    <div className="flex items-center rounded-lg bg-emerald-100 dark:bg-emerald-900/30 px-3 py-1 text-sm font-bold text-emerald-700 dark:text-emerald-400">
+                      <Sparkles className="mr-2 h-4 w-4" /> Correct!
+                    </div>
+                  ) : (
+                    <div className="flex items-center rounded-lg bg-rose-100 dark:bg-rose-900/30 px-3 py-1 text-sm font-bold text-rose-700 dark:text-rose-400">
+                      <AlertCircle className="mr-2 h-4 w-4" /> Incorrect
+                    </div>
+                  )}
+                </div>
+
+                {!explanation && (
+                  <button
+                    onClick={handleExplain}
+                    disabled={isExplaining}
+                    className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline flex items-center"
+                  >
+                    {isExplaining ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : "✨ Explain Why"}
+                  </button>
                 )}
               </div>
+
               <Button
                 onClick={nextQuestion}
                 icon={ArrowRight}
@@ -123,6 +163,12 @@ export default function Play({
                   : 'Next Question'}
               </Button>
             </div>
+
+            {explanation && (
+              <div className="mt-4 p-4 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm text-slate-600 dark:text-slate-300 animate-fadeIn border border-slate-200 dark:border-slate-700">
+                <span className="font-bold text-indigo-600 dark:text-indigo-400">AI Explanation:</span> {explanation}
+              </div>
+            )}
           </div>
         )}
       </div>

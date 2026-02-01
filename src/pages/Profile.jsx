@@ -151,7 +151,7 @@ export default function Profile({ user, setUser, setView, history = [] }) {
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
         {/* EDIT PROFILE */}
-        <div className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-8 shadow-xl shadow-slate-200/50 dark:shadow-none">
+        <div className="rounded-[2.5rem] glass p-8 shadow-xl shadow-slate-200/50 dark:shadow-none">
           <h2 className="mb-6 text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
             <User className="text-indigo-500" size={20} /> Edit Profile
           </h2>
@@ -194,7 +194,7 @@ export default function Profile({ user, setUser, setView, history = [] }) {
         </div>
 
         {/* SECURITY */}
-        <div className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-8 shadow-xl shadow-slate-200/50 dark:shadow-none">
+        <div className="rounded-[2.5rem] glass p-8 shadow-xl shadow-slate-200/50 dark:shadow-none">
           <h2 className="mb-6 text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
             <Lock className="text-indigo-500" size={20} /> Security
           </h2>
@@ -236,7 +236,7 @@ export default function Profile({ user, setUser, setView, history = [] }) {
           📜 HISTORY TEASER
       ------------------------ */}
       {history.length > 0 && (
-        <div className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-8 shadow-xl shadow-slate-200/50 dark:shadow-none">
+        <div className="rounded-[2.5rem] glass p-8 shadow-xl shadow-slate-200/50 dark:shadow-none">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
               <History className="text-indigo-500" size={20} /> Recent History

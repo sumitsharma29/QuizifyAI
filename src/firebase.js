@@ -31,6 +31,12 @@ if (missingKeys.length > 0) {
       ", "
     )}. Check your .env file.`
   );
+} else {
+  console.log("✅ Firebase Config Loaded:", {
+    projectId: firebaseConfig.projectId,
+    authDomain: firebaseConfig.authDomain,
+    storageBucket: firebaseConfig.storageBucket
+  });
 }
 
 // Initialize Firebase

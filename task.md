@@ -1,0 +1,34 @@
+# Tasks
+
+- [x] Implement Rate Limiting
+    - [x] Install `express-rate-limit`
+    - [x] Configure middleware in `server/index.js`
+    - [x] Verify server startup
+- [x] Implement Flashcards
+    - [x] Create Implementation Plan
+    - [x] Update `Generator.jsx` to support Flashcard mode
+    - [x] Update `generateWithGemini.js` to support Flashcard schema
+    - [x] Create `FlashcardPlay.jsx` (Game UI)
+    - [x] Add Route in `App.jsx`
+- [x] Premium UI Overhaul
+    - [x] Update `index.html` (Fonts & CSP)
+    - [x] Update `index.css` (Global Styles & Animations)
+    - [x] Enhance `Card.jsx` (Hover Effects)
+    - [x] Revamp `Home.jsx` (Hero Section & Typography)
+- [x] Phase 2 UI Polish
+    - [x] Update `Header.jsx` (Glass & Logo)
+    - [x] Update `Generator.jsx` (Glass Inputs)
+    - [x] Update `Play.jsx` (Glass Quiz Container)
+- [x] Phase 3 UI Polish
+    - [x] Update `Results.jsx` (Glass & Victory Visuals)
+    - [x] Update `Profile.jsx` (Glass Dashboard)
+    - [x] Update `Footer.jsx` (Typography & Glows)
+- [x] Phase 4 Ultra Premium (3D & Motion)
+    - [x] Install `framer-motion`
+    - [x] Create `TiltCard.jsx` (3D Physics)
+    - [x] Update `Home.jsx` (Staggered Animations)
+    - [x] Update `App.jsx` (Page Transitions)
+- [x] Improve Library UI
+    - [x] Add Search & Filters to `Home.jsx`
+    - [x] Style Library Header
+- [ ] Add PWA Support (Planned)

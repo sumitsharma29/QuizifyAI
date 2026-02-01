@@ -1,11 +1,35 @@
 import React, { useState } from "react";
-import { signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
+import { signInWithEmailAndPassword, signInWithPopup, signInWithRedirect, getRedirectResult, onAuthStateChanged } from "firebase/auth";
 import { auth, googleProvider } from "../firebase";
 
 export default function Signin({ setView }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+
+  // Handle Redirect Result (Runs on page load)
+  React.useEffect(() => {
+    getRedirectResult(auth)
+      .then((result) => {
+        if (result) {
+          setView("home");
+        }
+      })
+      .catch((err) => {
+        console.error("Redirect Auth Error:", err);
+        setError(err.message);
+      });
+  }, [setView]);
+
+  // Watch for successful auth (covers both Popups and Redirects)
+  React.useEffect(() => {
+    const unsub = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setView("home");
+      }
+    });
+    return () => unsub();
+  }, [setView]);
 
   const handleSignin = async (e) => {
     e.preventDefault();
@@ -22,13 +46,16 @@ export default function Signin({ setView }) {
       await signInWithPopup(auth, googleProvider);
       setView("home");
     } catch (err) {
-      console.error("Google Sign-In Error:", err);
-      if (
-        err.code === "auth/cancelled-popup-request" ||
-        err.code === "auth/popup-closed-by-user"
-      ) {
-        console.warn("Google sign-in cancelled by user.");
-        return;
+      console.error("Google Sign-In Popup Error:", err);
+      // Fallback to mode that might work better with strict security policies
+      if (err.code === 'auth/internal-error' || err.code === 'auth/popup-closed-by-user') {
+        console.log("Attempting redirect login as fallback...");
+        try {
+          await signInWithRedirect(auth, googleProvider);
+          return; // Redirecting...
+        } catch (redirectErr) {
+          setError("Redirect failed: " + redirectErr.message);
+        }
       }
       setError(err.message);
     }
@@ -125,6 +152,8 @@ export default function Signin({ setView }) {
           Sign Up
         </button>
       </p>
+
+
     </div>
   );
 }

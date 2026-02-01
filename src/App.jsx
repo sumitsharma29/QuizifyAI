@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, lazy, Suspense } from "react";
 import { Loader2 } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   subscribeToUserQuizzes,
   saveQuizToFirestore,
@@ -25,6 +26,7 @@ const Signin = lazy(() => import("./pages/Signin"));
 const Signup = lazy(() => import("./pages/Signup"));
 const Profile = lazy(() => import("./pages/Profile"));
 const HistoryPage = lazy(() => import("./pages/History"));
+const FlashcardPlay = lazy(() => import("./pages/FlashcardPlay"));
 
 import { INITIAL_QUIZZES } from "./data/quizzes";
 import { shuffleArray } from "./utils/shuffleArray";
@@ -38,6 +40,7 @@ export default function App() {
   const [view, setView] = useState("home");
 
   const [user, setUser] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true); // Add loading state
   const [quizzes, setQuizzes] = useState(INITIAL_QUIZZES);
   const [history, setHistory] = useState([]);
 
@@ -48,6 +51,7 @@ export default function App() {
   const [showExplanation, setShowExplanation] = useState(false);
 
   const [genMode, setGenMode] = useState("text");
+  const [genFormat, setGenFormat] = useState("quiz"); // "quiz" or "flashcard"
   const [genInput, setGenInput] = useState("");
   const [fileName, setFileName] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
@@ -57,7 +61,18 @@ export default function App() {
   const [questionCount, setQuestionCount] = useState(5);
 
   const [isDark, setIsDark] = useState(false);
+  const [soundEnabled, setSoundEnabled] = useState(() => {
+    return localStorage.getItem("soundEnabled") !== "false";
+  });
   const [toast, setToast] = useState({ message: "", type: "" });
+
+  const toggleSound = () => {
+    setSoundEnabled(prev => {
+      const newVal = !prev;
+      localStorage.setItem("soundEnabled", newVal);
+      return newVal;
+    });
+  };
 
   const [formData, setFormData] = useState({
     name: "",
@@ -104,6 +119,7 @@ export default function App() {
         setQuizzes(INITIAL_QUIZZES);
         setHistory([]);
       }
+      setAuthLoading(false);
     });
 
     return () => {
@@ -147,6 +163,13 @@ export default function App() {
   // START QUIZ
   // --------------------------------------------------
   const startQuiz = useCallback((quiz) => {
+    if (quiz.type === 'flashcard') {
+      setActiveQuiz(quiz);
+      setView('flashcards');
+      window.scrollTo(0, 0);
+      return;
+    }
+
     const shuffledQuestions = shuffleArray(quiz.questions).map((q) => ({
       ...q,
       options: shuffleArray(q.options),
@@ -277,24 +300,27 @@ export default function App() {
 
     setIsGenerating(true);
 
-    const sys = 'Output ONLY valid JSON: {"title":"T","description":"D","icon":"atom","color":"from-blue-500 to-cyan-500","questions":[{"id":1,"text":"Q?","options":["W1","W2","W3","C"],"correctAnswer":"C"}]}';
-    const constraints = `Difficulty:${difficulty}.Questions:${questionCount}.`;
-
-    const prompt = genMode === "topic"
-      ? `${sys} ${constraints} Create a quiz about: "${genInput}".`
-      : `${sys} ${constraints} Create a quiz from this text: "${genInput.slice(0, 4000)}".`;
-
     try {
+      // Prompt Construction
+      const sys = genFormat === "flashcard"
+        ? 'Output ONLY valid JSON: {"title":"T","description":"D","icon":"zap","color":"from-fuchsia-500 to-pink-500","type":"flashcard","questions":[{"id":1,"front":"Term","back":"Definition"}]}'
+        : 'Output ONLY valid JSON: {"title":"T","description":"D","icon":"atom","color":"from-blue-500 to-cyan-500","questions":[{"id":1,"text":"Q?","options":["W1","W2","W3","C"],"correctAnswer":"C"}]}';
+
+      const constraints = `Difficulty:${difficulty}.Questions:${questionCount}.`;
+
+      const prompt = genMode === "topic"
+        ? `${sys} ${constraints} Create a ${genFormat === "flashcard" ? "flashcard set" : "quiz"} about: "${genInput}".`
+        : `${sys} ${constraints} Create a ${genFormat === "flashcard" ? "flashcard set" : "quiz"} from this text: "${genInput.slice(0, 4000)}".`;
+
       const aiResult = await generateWithGemini(prompt);
 
       if (aiResult) {
-        const newQuiz = { ...aiResult, id: `ai-${Date.now()}` };
+        const newQuiz = { ...aiResult, id: `ai-${Date.now()}`, type: genFormat || 'quiz' };
 
         if (user) {
           saveQuizToFirestore(user.uid, newQuiz).catch((err) =>
             console.error("Failed to save quiz to Firestore:", err)
           );
-          // Listener handles UI update
         } else {
           setQuizzes((prev) => [...prev, newQuiz]);
         }
@@ -307,7 +333,8 @@ export default function App() {
       const fallback = generateFallbackQuiz(
         genInput,
         fileName || "Document",
-        questionCount
+        questionCount,
+        genFormat // Pass format to fallback
       );
 
       if (fallback.questions.length > 0) {
@@ -315,7 +342,6 @@ export default function App() {
           saveQuizToFirestore(user.uid, fallback).catch((err) =>
             console.error("Failed to save fallback quiz to Firestore:", err)
           );
-          // Listener handles UI update
         } else {
           setQuizzes((prev) => [...prev, fallback]);
         }
@@ -364,7 +390,19 @@ export default function App() {
   // --------------------------------------------------
   // PROTECTED ROUTES
   // --------------------------------------------------
+  // --------------------------------------------------
+  // PROTECTED ROUTES
+  // --------------------------------------------------
   const needsAuth = ["generator", "profile", "history"];
+
+  // Show Loader while Auth is checking
+  if (authLoading) {
+    return (
+      <div className={`flex min-h-screen flex-col items-center justify-center ${isDark ? "bg-slate-950 text-white" : "bg-slate-50 text-slate-900"}`}>
+        <Loader2 className="h-10 w-10 animate-spin text-indigo-500" />
+      </div>
+    );
+  }
 
   if (!user && needsAuth.includes(view)) {
     return (
@@ -421,6 +459,8 @@ export default function App() {
       <Generator
         genMode={genMode}
         setGenMode={setGenMode}
+        genFormat={genFormat}
+        setGenFormat={setGenFormat}
         genInput={genInput}
         setGenInput={setGenInput}
         fileName={fileName}
@@ -445,6 +485,7 @@ export default function App() {
         handleAnswer={handleAnswer}
         nextQuestion={nextQuestion}
         setView={setView}
+        soundEnabled={soundEnabled}
       />
     ),
     results: (
@@ -454,6 +495,7 @@ export default function App() {
         startQuiz={startQuiz}
         setView={setView}
         answers={answers}
+        soundEnabled={soundEnabled}
       />
     ),
     about: <About />,
@@ -471,6 +513,13 @@ export default function App() {
 
     profile: <Profile user={user} setUser={setUser} history={history} setView={setView} />,
     history: <HistoryPage history={history} setView={setView} />,
+    flashcards: (
+      <FlashcardPlay
+        activeQuiz={activeQuiz}
+        setView={setView}
+        soundEnabled={soundEnabled}
+      />
+    ),
   }[view];
 
   // --------------------------------------------------
@@ -486,6 +535,8 @@ export default function App() {
         view={view}
         isDark={isDark}
         toggleTheme={toggleTheme}
+        soundEnabled={soundEnabled}
+        toggleSound={toggleSound}
         user={user}
       />
 
@@ -498,7 +549,17 @@ export default function App() {
               </div>
             }
           >
-            {page}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={view}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                {page}
+              </motion.div>
+            </AnimatePresence>
           </Suspense>
         </div>
       </main>

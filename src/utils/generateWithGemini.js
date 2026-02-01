@@ -40,3 +40,30 @@ export const generateWithGemini = async (rawPrompt) => {
     return null;
   }
 };
+
+export const explainAnswer = async (question, correctAnswer, userAnswer) => {
+  try {
+    const prompt = `Explain concisely (max 2-3 sentences) why "${correctAnswer}" is the correct answer to: "${question}". ${userAnswer && userAnswer !== correctAnswer ? `Briefly mention why "${userAnswer}" is incorrect.` : ''}`;
+
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), 15000);
+
+    const response = await fetch('/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt }),
+      signal: controller.signal,
+    });
+    clearTimeout(id);
+
+    if (!response.ok) throw new Error('API Request Failed');
+    const data = await response.json();
+
+    // Extract text
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    return text || "No explanation available.";
+  } catch (error) {
+    console.error("Explanation Failed:", error);
+    return "Could not load explanation.";
+  }
+};

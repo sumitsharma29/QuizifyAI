@@ -23,11 +23,14 @@
      <a href="https://ai.google.dev/">
       <img src="https://img.shields.io/badge/Gemini_AI-API-8E75B2?logo=google-gemini&logoColor=white&style=for-the-badge" alt="Gemini AI" />
     </a>
+    <a href="https://web.dev/progressive-web-apps/">
+      <img src="https://img.shields.io/badge/PWA-Ready-5A0FC8?logo=pwa&logoColor=white&style=for-the-badge" alt="PWA" />
+    </a>
   </p>
 
   <p>
-  QuizifyAI is a cutting-edge <strong>AI-powered quiz generator</strong> that transforms any text or PDF into an interactive learning experience.  
-  Built with performance and aesthetics in mind, it features a stunning dark-mode UI and seamless Gemini AI integration.
+  QuizifyAI is a cutting-edge <strong>AI-powered quiz & flashcard generator</strong> that transforms any text, PDF, or topic into an interactive learning experience.  
+  Built with performance and aesthetics in mind, it features a stunning dark-mode UI, PWA support, and seamless Gemini AI integration.
   </p>
 
   <br />
@@ -38,14 +41,16 @@
 
 ## 🚀 Features
 
-Transform your study material into engaging quizzes in seconds.
+Transform your study material into engaging learning assets in seconds.
 
-- **🤖 AI-Powered Generation**: Leverage Google's Gemini API to generate smart, relevant questions from any topic.
-- **📄 Document to Quiz**: Upload PDF or text files, and let the AI extract key concepts for your quiz.
-- **🎨 Stunning UI**: A fully responsive, dark-mode first design with smooth animations and glassmorphism effects.
-- **🏆 Interactive Gameplay**: Play quizzes with real-time scoring, feedback, and summary results.
-- **⚡ Blazing Fast**: Powered by Vite and React for instant load times and smooth transitions.
-- **🛠️ Customizability**: Adjustable difficulty levels and question counts.
+- **🤖 AI-Powered Generation**: Leverage Google's Gemini API to generate smart, relevant questions and flashcards.
+- **📄 Document to Quiz**: Upload PDF or text files, and let the AI extract key concepts.
+- **✨ Interactive Flashcards**: 3D tilt-enabled flashcards for immersive memorization.
+- **🧠 Intelligent Tutoring**: Get instant "Explain Why" feedback for any question, powered by AI.
+- **📱 PWA Support**: Install as a native app on mobile/desktop with offline capabilities.
+- **🎨 Ultra-Premium UI**: Fully responsive, dark-mode design with glassmorphism and smooth animations.
+- **🏆 Gamification**: Real-time scoring, victory confetti, sound effects, and social sharing.
+- **☁️ Cloud Sync**: Save your progress and library across devices using Firebase Auth & Firestore.
 
 ---
 
@@ -57,9 +62,10 @@ This project is built using modern web technologies for scalability and performa
 | :--- | :--- |
 | **Frontend** | [React 18](https://react.dev/), [Vite](https://vitejs.dev/) |
 | **Styling** | [Tailwind CSS](https://tailwindcss.com/), [PostCSS](https://postcss.org/) |
-| **Icons** | [Lucide React](https://lucide.dev/) |
+| **Backend/Auth** | [Firebase (Auth, Firestore)](https://firebase.google.com/) |
 | **AI Integration** | [Google Gemini API](https://ai.google.dev/) |
-| **Deployment** | (Ready for Vercel/Netlify) |
+| **Icons** | [Lucide React](https://lucide.dev/) |
+| **Effects** | [Canvas Confetti](https://www.npmjs.com/package/canvas-confetti) |
 
 ---
 
@@ -86,14 +92,16 @@ Follow these steps to set up QuizifyAI locally.
 
 3.  **Configure Environment Variables**
     
-    You need a Google Gemini API key to use the AI generation features.
-    
-    Open `src/utils/generateWithGemini.js` and update the key:
-    ```javascript
-    // src/utils/generateWithGemini.js
-    const GEMINI_API_KEY = "YOUR_GEMINI_API_KEY_HERE";
+    Create a `.env` file in the root directory and add your keys:
+    ```env
+    VITE_GEMINI_API_KEY=your_gemini_key
+    VITE_FIREBASE_API_KEY=your_firebase_key
+    VITE_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
+    VITE_FIREBASE_PROJECT_ID=your_project_id
+    VITE_FIREBASE_STORAGE_BUCKET=your_bucket.appspot.com
+    VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+    VITE_FIREBASE_APP_ID=your_app_id
     ```
-    *(Note: For production, it is recommended to use a `.env` file.)*
 
 4.  **Run the Development Server**
     ```bash
@@ -110,13 +118,13 @@ Follow these steps to set up QuizifyAI locally.
 QuizifyAI/
 ├── src/
 │   ├── components/    # Reusable UI components (Cards, Buttons, Inputs)
-│   ├── pages/         # Application routes (Home, Quiz, Result)
-│   ├── utils/         # Helper functions & API logic (Gemini integration)
+│   ├── pages/         # Application routes (Home, Play, Results, Auth, etc.)
+│   ├── utils/         # Helper functions (Gemini, Firestore, Sound, etc.)
 │   ├── data/          # Static data & constants
 │   ├── styles/        # Global styles & Tailwind configs
 │   ├── App.jsx        # Main application component
-│   └── main.jsx       # Entry point
-├── public/            # Static assets
+│   └── firebase.js    # Firebase configuration
+├── public/            # Static assets (PWA icons, etc.)
 └── package.json       # Dependencies & scripts
 ```
 

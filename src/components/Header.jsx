@@ -8,10 +8,12 @@ import {
   LogOut,
   User,
   Clock,
+  Volume2,
+  VolumeX,
 } from "lucide-react";
 import { auth } from "../firebase";
 
-const Header = memo(({ setView, view, isDark, toggleTheme, user }) => {
+const Header = memo(({ setView, view, isDark, toggleTheme, user, soundEnabled, toggleSound }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState(false);
 
@@ -30,18 +32,18 @@ const Header = memo(({ setView, view, isDark, toggleTheme, user }) => {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md">
+    <header className="sticky top-0 z-50 w-full glass">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* LOGO */}
         <div
           onClick={() => setView("home")}
           className="flex cursor-pointer items-center gap-2 group"
         >
-          <div className="rounded-xl bg-indigo-600 p-2 transition-transform duration-300 group-hover:rotate-12 group-hover:shadow-lg shadow-indigo-500/50">
+          <div className="rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 p-2 transition-transform duration-300 group-hover:rotate-12 group-hover:shadow-lg shadow-indigo-500/50 ring-1 ring-white/20">
             <Brain className="h-6 w-6 text-white" />
           </div>
-          <span className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
-            Quiz<span className="text-indigo-600 dark:text-indigo-400">ifyAI</span>
+          <span className="text-xl font-extrabold tracking-tight text-slate-900 dark:text-white font-[Outfit]">
+            Quiz<span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-violet-600 dark:from-indigo-400 dark:to-violet-400">ifyAI</span>
           </span>
         </div>
 
@@ -52,8 +54,8 @@ const Header = memo(({ setView, view, isDark, toggleTheme, user }) => {
               key={item}
               onClick={() => setView(item)}
               className={`text-sm font-medium transition-all hover:text-indigo-600 dark:hover:text-indigo-400 capitalize ${view === item
-                  ? "text-indigo-600 dark:text-indigo-400 font-bold"
-                  : "text-slate-600 dark:text-slate-300"
+                ? "text-indigo-600 dark:text-indigo-400 font-bold"
+                : "text-slate-600 dark:text-slate-300"
                 }`}
             >
               {item === "home" ? "Library" : item}
@@ -65,14 +67,23 @@ const Header = memo(({ setView, view, isDark, toggleTheme, user }) => {
             <button
               onClick={goToHistory}
               className={`flex items-center gap-1 text-sm font-medium transition hover:text-indigo-600 dark:hover:text-indigo-400 ${view === "profile"
-                  ? "text-indigo-600 dark:text-indigo-400 font-bold"
-                  : "text-slate-600 dark:text-slate-300"
+                ? "text-indigo-600 dark:text-indigo-400 font-bold"
+                : "text-slate-600 dark:text-slate-300"
                 }`}
             >
               <Clock size={16} />
               History
             </button>
           )}
+
+          {/* SOUND TOGGLE */}
+          <button
+            onClick={toggleSound}
+            className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-all hover:scale-110"
+            title={soundEnabled ? "Mute" : "Unmute"}
+          >
+            {soundEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
+          </button>
 
           {/* THEME TOGGLE */}
           <button
@@ -131,6 +142,13 @@ const Header = memo(({ setView, view, isDark, toggleTheme, user }) => {
 
         {/* MOBILE — RIGHT SIDE BUTTONS */}
         <div className="flex items-center gap-4 md:hidden">
+          <button
+            onClick={toggleSound}
+            className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+          >
+            {soundEnabled ? <Volume2 size={20} /> : <VolumeX size={20} />}
+          </button>
+
           <button
             onClick={toggleTheme}
             className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition"
