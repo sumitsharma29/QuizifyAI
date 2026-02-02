@@ -63,6 +63,7 @@ This project is built using modern web technologies for scalability and performa
 | **Frontend** | [React 18](https://react.dev/), [Vite](https://vitejs.dev/) |
 | **Styling** | [Tailwind CSS](https://tailwindcss.com/), [PostCSS](https://postcss.org/) |
 | **Backend/Auth** | [Firebase (Auth, Firestore)](https://firebase.google.com/) |
+| **Serverless/API** | [Netlify Functions](https://docs.netlify.com/functions/overview/) |
 | **AI Integration** | [Google Gemini API](https://ai.google.dev/) |
 | **Icons** | [Lucide React](https://lucide.dev/) |
 | **Effects** | [Canvas Confetti](https://www.npmjs.com/package/canvas-confetti) |
@@ -109,6 +110,30 @@ Follow these steps to set up QuizifyAI locally.
     ```
 
     Open http://localhost:5173 to view it in the browser.
+
+---
+
+---
+## ☁️ Deployment (Netlify)
+
+This project uses **Netlify Functions** to securely proxy API requests to Gemini AI.
+
+1.  **Push to GitHub**
+    Push your code to a GitHub repository.
+
+2.  **Import to Netlify**
+    - Go to Netlify Dashboard -> "Add new site" -> "Import from Git".
+    - Select your repository.
+
+3.  **Environment Variables (Critical)**
+    Add the following variables in Netlify Site Settings > Environment Variables:
+    - `VITE_GEMINI_API_KEY`
+    - `VITE_FIREBASE_API_KEY`
+    - `VITE_FIREBASE_AUTH_DOMAIN`
+    - `VITE_FIREBASE_PROJECT_ID`
+    - `VITE_FIREBASE_STORAGE_BUCKET`
+    - `VITE_FIREBASE_MESSAGING_SENDER_ID`
+    - `VITE_FIREBASE_APP_ID`
 
 ---
 
