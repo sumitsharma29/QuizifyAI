@@ -1,0 +1,3 @@
+# Redirects for Netlify (SPA Support + API)
+/api/generate  /.netlify/functions/generate  200
+/*  /index.html  200
