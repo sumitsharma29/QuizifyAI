@@ -132,3 +132,8 @@ Desktop.ini
 
 # Local Implementation Docs
 implementation*.md
+
+# Deployment Docs (Secrets)
+QUICK_DEPLOY.md
+DEPLOYMENT_FIX_SUMMARY.md
+NETLIFY_DEPLOYMENT.md
